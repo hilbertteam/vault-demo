@@ -1,0 +1,37 @@
+# Secret provider
+
+terraform {
+  required_version = ">= 1.0.1"
+  required_providers {
+    yandex = {
+      source  = "yandex-cloud/yandex"
+      version = ">= 0.74.0"
+    }
+
+    helm = {
+      source  = "hashicorp/helm"
+      version = ">= 2.2.0"
+    }
+  }
+
+  backend "s3" {
+    endpoint   = "storage.yandexcloud.net"
+    bucket     = "${bucket}"
+    region     = "${s3_region}"
+    key        = "${s3_path}"
+
+    access_key = "${access_key}"
+    secret_key = "${secret_key}"
+
+    skip_region_validation      = true
+    skip_credentials_validation = true
+  }
+
+}
+
+provider "yandex" {
+  cloud_id  = "${cloud_id}"
+  folder_id = "${folder_id}"
+  zone      = "${zone}"
+  token     = "${token}"
+}

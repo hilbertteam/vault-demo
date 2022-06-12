@@ -1,0 +1,42 @@
+injector:
+  enabled: false
+
+server:
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 256Mi
+      cpu: 250m
+  standalone:
+    enabled: true
+    config: |
+      ui = true
+
+      listener "tcp" {
+        tls_disable = 0
+        address = "0.0.0.0:8200"
+        tls_cert_file = "/vault/certs/tls.crt"
+        tls_key_file  = "/vault/certs/tls.key"
+      }
+      storage "file" {
+        path = "/vault/data"
+      }
+
+      listener "tcp" {
+        tls_disable = 1
+        address = "127.0.0.1:9200"
+      }
+
+  volumeMounts:
+    - name: vault-certificate
+      mountPath: "/vault/certs"
+      readOnly: true
+  volumes:
+    - name: vault-certificate
+      secret:
+        secretName: vault-certificate
+
+  extraEnvironmentVars:
+    VAULT_ADDR: http://127.0.0.1:9200

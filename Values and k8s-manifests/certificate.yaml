@@ -1,0 +1,29 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: vault-tls-certificate
+  namespace: vault
+spec:
+  # Secret names are always required.
+  secretName: vault-certificate 
+
+  secretTemplate:
+    labels:
+      my-secret-label: vault-tls-certificate
+
+  duration: 2160h # 90d
+  renewBefore: 360h # 15d
+  subject:
+    organizations:
+      - "My Org"
+  dnsNames:
+    - vault.internal.example.com
+
+  issuerRef:
+    name: vault-letsencrypt-prod
+    # We can reference ClusterIssuers by changing the kind here.
+    # The default value is Issuer (i.e. a locally namespaced Issuer)
+    kind: ClusterIssuer
+    # This is optional since cert-manager will default to this value however
+    # if you are using an external issuer, change this to that issuer group.
+    group: cert-manager.io

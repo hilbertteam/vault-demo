@@ -1,0 +1,57 @@
+controller:
+  replicaCount: 1
+  name: controller
+  updateStrategy:
+    type: RollingUpdate
+  config:
+    use-forwarded-headers: "true"
+    use-proxy-protocol: "false"
+    ssl-redirect: "true"
+    force-ssl-redirect: "false"
+    proxy-read-timeout: "3600"
+    proxy-real-ip-cidr: 0.0.0.0/0
+    proxy-send-timeout: "3600"
+    log-format-escape-json: "true"
+    log-format-upstream: '{"proxy_protocol_addr": "$proxy_protocol_addr",
+                           "remote_addr": "$remote_addr",
+                           "proxy_add_x_forwarded_for": "$proxy_add_x_forwarded_for",
+                           "remote_user": "$remote_user",
+                           "time_local": "$time_local",
+                           "request" : "$request",
+                           "status": "$status",
+                           "body_bytes_sent": "$body_bytes_sent",
+                           "http_referer":  "$http_referer",
+                           "http_user_agent": "$http_user_agent",
+                           "request_length" : "$request_length",
+                           "request_time" : "$request_time",
+                           "proxy_upstream_name": "$proxy_upstream_name",
+                           "upstream_addr": "$upstream_addr",
+                           "upstream_response_length": "$upstream_response_length",
+                           "upstream_response_time": "$upstream_response_time",
+                           "upstream_status": "$upstream_status"}'
+  publishService:
+    enabled: true
+  service:
+    type: LoadBalancer
+    externalTrafficPolicy: Local
+    targetPorts:
+      http: http
+      https: https
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+      namespace: observability
+  containerPort:
+    http: 80
+    https: 443
+  resources:
+    limits:
+      memory: 256Mi
+    requests:
+      cpu: 0.1
+      memory: 128Mi
+
+defaultBackend:
+  enabled: false
+

@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault-lb
+  namespace: vault
+  annotations:
+    yandex.cloud/load-balancer-type: internal
+    yandex.cloud/subnet-id: <load_balancer_subnet_id>
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 172.16.21.10
+  selector:
+    app.kubernetes.io/instance: vault
+    app.kubernetes.io/name: vault
+    # vault-active: "true"
+  ports:
+    - port: 443
+      targetPort: 8200

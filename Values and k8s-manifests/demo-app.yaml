@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo-app
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: demo-app-sa
+  namespace: demo-app
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-app
+  namespace: demo-app
+  labels:
+    app: demo-app
+  annotations:
+    vault.hashicorp.com/agent-inject: 'true'
+    vault.hashicorp.com/role: 'demo-app'
+    vault.hashicorp.com/agent-inject-secret-db-credentials.txt: "demo-app/db/credentials"
+    vault.hashicorp.com/service: "https://vault.internal.example.com"
+    vault.hashicorp.com/agent-inject-template-db-credentials.txt: |
+      {{- with secret "demo-app/db/credentials" -}}
+        USERNAME:{{ .Data.data.username }}
+        PASSWORD:{{ .Data.data.password }}
+      {{- end -}}  
+spec:
+  serviceAccountName: demo-app-sa
+  containers:
+    - name: demo-app
+      image: alpine
+      resources:
+        requests:
+          cpu: 200m
+          memory: 64Mi
+        limits:
+          cpu: 200m
+          memory: 64Mi
+      args:
+        - sh
+        - -c
+        - "while true; do cat /vault/secrets/db-credentials.txt && sleep 2s; done"
